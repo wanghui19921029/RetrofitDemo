@@ -64,6 +64,7 @@ public class Network {
         Retrofit retrofit = new Retrofit.Builder()
                 //使用自定义的mGsonConverterFactory
                 .addConverterFactory(GsonConverterFactory.create())
+                //使用rxjava的adapter
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .baseUrl("http://t.weather.sojson.com")
                 .build();

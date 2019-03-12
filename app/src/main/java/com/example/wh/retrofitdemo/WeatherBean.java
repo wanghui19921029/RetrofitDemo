@@ -5,7 +5,7 @@ import java.util.List;
 public class WeatherBean {
     @Override
     public String toString() {
-        return "day1 = " + data.getForecast().get(0).notice + ", day2 = " + data.getForecast().get(1).notice;
+        return "day1 = " + data.getForecast().get(2).notice + ", day2 = " + data.getForecast().get(3).notice;
     }
 
     /**

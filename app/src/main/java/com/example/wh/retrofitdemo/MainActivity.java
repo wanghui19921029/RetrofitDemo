@@ -29,11 +29,14 @@ public class MainActivity extends AppCompatActivity {
         // retrofit请求bitmap
         getBmp();
         // retrofit结合rxjava,请求string
-        Observable<WeatherBean> observable = getWeather();
-        subscribe(observable, new Observer<WeatherBean>() {
+        getWeather();
+    }
+
+    private void getWeather() {
+        RetrofitUtil.getInstance().getWeather(new Observer<WeatherBean>() {
             @Override
             public void onCompleted() {
-                Log.i(TAG, "onCompleted: "+Thread.currentThread().getName());
+                Log.i(TAG, "onCompleted: ");
             }
 
             @Override
@@ -48,22 +51,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private static <T> void subscribe(Observable<T> observable, Observer<T> netCallback) {
-        observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(netCallback);
-    }
-
-    private Observable<WeatherBean> getWeather() {
-        API api = Network.getInstance().getWeatherApi();
-        Observable<WeatherBean> observable = api.getWeather();
-        return observable;
-    }
-
     private void getTest(String version, String versionName, String model, String ui, String hwVersion, String mac, String region, String userpreferlanguage, String sso_tk, String _ak, String _time, String _sign) {
-        API api = Network.getInstance().getTestApi();
-        Call<TestBean> news = api.getTest(version, versionName, model, ui, hwVersion, mac, region, userpreferlanguage, sso_tk, _ak, _time, _sign);
-        news.enqueue(new Callback<TestBean>() {
+        RetrofitUtil.getInstance().getTest(version, versionName, model, ui, hwVersion, mac, region, userpreferlanguage, sso_tk, _ak, _time, _sign, new Callback<TestBean>() {
             @Override
             public void onResponse(Call<TestBean> call, Response<TestBean> response) {
                 TestBean body = response.body();
@@ -78,9 +67,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getBmp() {
-        API api = Network.getInstance().getBmpApi();
-        Call<ResponseBody> news = api.getBmp();
-        news.enqueue(new Callback<ResponseBody>() {
+        RetrofitUtil.getInstance().getBmp(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 mIv.setImageBitmap(BitmapFactory.decodeStream(response.body().byteStream()));
