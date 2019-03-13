@@ -50,7 +50,7 @@ public class RetrofitUtil {
     //没有参数的get请求
     public void getBmp(Callback<ResponseBody> callback) {
         API api = getBmpApi();
-        Call<ResponseBody> news = api.getBmp();
+        Call<ResponseBody> news = api.getBmp("http://i0.img.cp21.ott.cibntv.net/lc02_gugwl/201902/22/15/41/jiaorouji.jpg");
         news.enqueue(callback);
     }
 
@@ -69,25 +69,7 @@ public class RetrofitUtil {
 
 
     public API getTestApi() {
-        OkHttpClient okHttpClient = new OkHttpClient
-                .Builder()
-                .addNetworkInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        HttpUrl.Builder builder = chain.request().url().newBuilder();
-                        HttpUrl httpUrl = builder.build();
-                        Log.i(TAG, "intercept: url = " + httpUrl.toString());
-                        Request request = chain.request().newBuilder().url(httpUrl).build();
-                        Response response = chain.proceed(request);
-                        return response;
-                    }
-                })
-                .connectTimeout(5 * 1000, TimeUnit.MILLISECONDS)
-                .retryOnConnectionFailure(true)
-                .build();
-
         Retrofit retrofit = new Retrofit.Builder()
-                .client(okHttpClient)
                 //使用自定义的mGsonConverterFactory
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl("http://xfeedback-scloud.cp21.ott.cibntv.net")
@@ -107,8 +89,26 @@ public class RetrofitUtil {
     }
 
     public API getBmpApi() {
+        OkHttpClient okHttpClient = new OkHttpClient
+                .Builder()
+                .addNetworkInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        HttpUrl.Builder builder = chain.request().url().newBuilder();
+                        HttpUrl httpUrl = builder.build();
+                        Log.i(TAG, "getBmpApi: url = " + httpUrl.toString());
+                        Request request = chain.request().newBuilder().url(httpUrl).build();
+                        Response response = chain.proceed(request);
+                        return response;
+                    }
+                })
+                .connectTimeout(5 * 1000, TimeUnit.MILLISECONDS)
+                .retryOnConnectionFailure(true)
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://i1.img.cp21.ott.cibntv.net/")
+                .client(okHttpClient)
+                .baseUrl("http://i0.img.cp21.ott.cibntv.net/")
                 .build();
         return retrofit.create(API.class);
     }
