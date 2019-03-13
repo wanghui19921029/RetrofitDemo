@@ -1,8 +1,21 @@
 package com.example.wh.retrofitdemo;
 
+import android.util.Log;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
@@ -29,21 +42,21 @@ public class RetrofitUtil {
 
     //带有参数的get请求
     public void getTest(String version, String versionName, String model, String ui, String hwVersion, String mac, String region, String userpreferlanguage, String sso_tk, String _ak, String _time, String _sign, Callback<TestBean> callback) {
-        API api = Network.getInstance().getTestApi();
+        API api = getTestApi();
         Call<TestBean> news = api.getTest(version, versionName, model, ui, hwVersion, mac, region, userpreferlanguage, sso_tk, _ak, _time, _sign);
         news.enqueue(callback);
     }
 
     //没有参数的get请求
     public void getBmp(Callback<ResponseBody> callback) {
-        API api = Network.getInstance().getBmpApi();
+        API api = getBmpApi();
         Call<ResponseBody> news = api.getBmp();
         news.enqueue(callback);
     }
 
     //rxjava
     public void getWeather(Observer<WeatherBean> observer) {
-        API api = Network.getInstance().getWeatherApi();
+        API api = getWeatherApi();
         Observable<WeatherBean> observable = api.getWeather();
         subscribe(observable, observer);
     }
@@ -52,5 +65,51 @@ public class RetrofitUtil {
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(netCallback);
+    }
+
+
+    public API getTestApi() {
+        OkHttpClient okHttpClient = new OkHttpClient
+                .Builder()
+                .addNetworkInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        HttpUrl.Builder builder = chain.request().url().newBuilder();
+                        HttpUrl httpUrl = builder.build();
+                        Log.i(TAG, "intercept: url = " + httpUrl.toString());
+                        Request request = chain.request().newBuilder().url(httpUrl).build();
+                        Response response = chain.proceed(request);
+                        return response;
+                    }
+                })
+                .connectTimeout(5 * 1000, TimeUnit.MILLISECONDS)
+                .retryOnConnectionFailure(true)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
+                //使用自定义的mGsonConverterFactory
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("http://xfeedback-scloud.cp21.ott.cibntv.net")
+                .build();
+        return retrofit.create(API.class);
+    }
+
+    public API getWeatherApi() {
+        Retrofit retrofit = new Retrofit.Builder()
+                //使用自定义的mGsonConverterFactory
+                .addConverterFactory(GsonConverterFactory.create())
+                //使用rxjava的adapter
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .baseUrl("http://t.weather.sojson.com")
+                .build();
+        return retrofit.create(API.class);
+    }
+
+    public API getBmpApi() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://i1.img.cp21.ott.cibntv.net/")
+                .build();
+        return retrofit.create(API.class);
     }
 }
