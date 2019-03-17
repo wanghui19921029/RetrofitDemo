@@ -29,7 +29,7 @@ public interface API {
     // 动态url：@Url 后的
     //
     // 首先，明确一个概念，如果base url中包含路径参数,则必须以"/"结尾.
-    // 当端点url以"/"开头 代表绝对路径 后缀路径，在base url中包含的路径参数会被忽略.比如下面第三种
+    // 当端点(动态)url以"/"开头 代表绝对路径 后缀路径，在base url中包含的路径参数会被忽略.比如下面第三种
     //
     // 我们了解了base url和端点url的连接,那Retrofit又是如何处理base url和动态url的呢？
     // 分四种情况(base url为"https://api.weibo.com/2/")：其中"2/"称为路径参数.
