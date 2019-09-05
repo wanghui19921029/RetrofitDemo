@@ -6,11 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
 
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import rx.Observer;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "whwhwh---MainActivity";
@@ -21,19 +22,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mIv = findViewById(R.id.iv);
-        // retrofit请求string
-        getTest("V2501RCN02C080337D03041D", "8.0.337D_0304", "X440N", "8.0", "null", "b01bd205a51b", "CN", "zh-cn", "103XXXpOE6Jy8HNZkgyO1LBusBuSgm1PKt5fPm1MtW9SWZg7CIFHhKjw1BAbN55e5KjCO9w4sZLkm5P3Rm3KWm3gc5WG1hhDtlp9tKUMdBsWWfyELRR0iwm4", "akfileup_YHoqMHgt", "1552115200711", "09688d85db2ab6042796288ec83b9783");
         // retrofit请求bitmap
-        getBmp();
+//        getBmp();
         // retrofit结合rxjava,请求string
-        getWeather();
+//        getWeather();
     }
 
     private void getWeather() {
         RetrofitUtil.getInstance().getWeather(new Observer<WeatherBean>() {
             @Override
-            public void onCompleted() {
-                Log.i(TAG, "onCompleted: ");
+            public void onSubscribe(Disposable d) {
+                Log.i(TAG, "onSubscribe: ");
+            }
+
+            @Override
+            public void onNext(WeatherBean weatherBean) {
+                Log.i(TAG, "onNext: " + weatherBean.toString());
             }
 
             @Override
@@ -42,23 +46,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNext(WeatherBean weatherBean) {
-                Log.i(TAG, "onNext: " + weatherBean.toString());
-            }
-        });
-    }
-
-    private void getTest(String version, String versionName, String model, String ui, String hwVersion, String mac, String region, String userpreferlanguage, String sso_tk, String _ak, String _time, String _sign) {
-        RetrofitUtil.getInstance().getTest(version, versionName, model, ui, hwVersion, mac, region, userpreferlanguage, sso_tk, _ak, _time, _sign, new Callback<TestBean>() {
-            @Override
-            public void onResponse(Call<TestBean> call, Response<TestBean> response) {
-                TestBean body = response.body();
-                Log.i(TAG, "onResponse: " + body.toString());
-            }
-
-            @Override
-            public void onFailure(Call<TestBean> call, Throwable t) {
-                Log.i(TAG, "onFailure: " + t.getMessage());
+            public void onComplete() {
+                Log.i(TAG, "onComplete: ");
             }
         });
     }
@@ -67,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         RetrofitUtil.getInstance().getBmp(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.i(TAG, "onResponse: ");
                 mIv.setImageBitmap(BitmapFactory.decodeStream(response.body().byteStream()));
             }
 

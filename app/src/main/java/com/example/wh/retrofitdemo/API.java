@@ -1,29 +1,13 @@
 package com.example.wh.retrofitdemo;
 
+import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Query;
 import retrofit2.http.Url;
-import rx.Observable;
-
 
 public interface API {
-
-    // get请求 @Query添加参数
-    @GET("api/v3/Tvfeedback")
-    Call<TestBean> getTest(@Query("version") String version, @Query("versionName") String versionName,
-                           @Query("model") String model, @Query("ui") String ui,
-                           @Query("hwVersion") String hwVersion, @Query("mac") String mac,
-                           @Query("region") String region, @Query("user-prefer-language") String userpreferlanguage,
-                           @Query("sso_tk") String sso_tk, @Query("_ak") String _ak,
-                           @Query("_time") String _time, @Query("_sign") String _sign);
-
-
     // 结合rxjava使用
-    @GET("api/weather/city/101030100")
-    Observable<WeatherBean> getWeather();
-
     // base url：Retrofit.baseUrl()
     // 端点url：@GET（url）
     // 动态url：@Url 后的
@@ -50,6 +34,10 @@ public interface API {
     // 例如动态url为"apistore/weatherservice/weather"
     // 那么最终的请求url为"https://api.weibo.com/2/apistore/weatherservice/weather"
 
+    @GET("api/weather/city/101030100")
+    Observable<WeatherBean> getWeather();
+
     @GET
     Call<ResponseBody> getBmp(@Url String url);
+
 }
